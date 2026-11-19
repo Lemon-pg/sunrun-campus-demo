@@ -13,12 +13,16 @@
       try {
         var params = new URLSearchParams(location.search || '');
         var forced = params.get('mobile') === '1' || params.get('m') === '1';
-        var isPhone = window.matchMedia &&
-          window.matchMedia('(pointer: coarse)').matches &&
-          window.matchMedia('(hover: none)').matches &&
-          window.innerWidth <= 920 &&
-          Math.min(window.screen.width || 0, window.screen.height || 0) <= 920;
-        if (forced || isPhone) document.documentElement.classList.add('force-mobile');
+        function shouldForce() {
+          var mq = window.matchMedia;
+          var isPhone = mq && mq('(pointer: coarse)').matches && mq('(hover: none)').matches &&
+            window.innerWidth <= 920 &&
+            Math.min(window.screen.width || 0, window.screen.height || 0) <= 920;
+          return forced || window.innerWidth <= 520 || isPhone;
+        }
+        function apply() { document.documentElement.classList.toggle('force-mobile', shouldForce()); }
+        apply();
+        window.addEventListener('resize', apply, { passive: true });
       } catch (err) {}
     })();
   </script>
